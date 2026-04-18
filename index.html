@@ -108,7 +108,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <div class="app-bar">
   <h1>Transpositor</h1>
-  <p>Para músicos de iglesia</p>
+  <p style="letter-spacing:.08em;font-size:12px">by GODTS</p>
 </div>
 
 <!-- ALERTA ELIMINAR -->
@@ -125,14 +125,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- S1 INICIO -->
 <div class="screen active" id="s-home" style="padding-top:16px">
-  <div class="tip">
-    <strong>Para activar el micrófono:</strong><br>
-    1. Crea cuenta gratis en <code>github.com</code><br>
-    2. Crea repositorio → sube este archivo como <code>index.html</code><br>
-    3. Settings → Pages → Branch: main → Save<br>
-    4. Te da URL <code>https://tuusuario.github.io/repo</code> ✓<br>
-    <span style="font-size:11px;color:#7c3aed">Las notas y transposición funcionan sin internet ahora mismo.</span>
-  </div>
   <button class="gbtn" onclick="go('s-inst')">
     <span class="gbtn-t">+ Nueva melodía</span>
     <span class="gbtn-s">Ingresar notas y guardar</span>
@@ -573,7 +565,7 @@ function openM(id){
     document.getElementById('vinfo').innerHTML=
       '<strong>'+m.instName+'</strong> · '+m.tonic+' '+m.mode+'<br>Escala piano: '+sc.join(' ');
     document.getElementById('avwrap').innerHTML=
-      '<p style="font-size:13px;color:#4b5563">Los audios se guardan en la carpeta Descargas del teléfono. Búscalos ahí para reproducirlos.</p>';
+      '<p style="font-size:13px;color:#4b5563">Los audios se guardan en la carpeta <strong style="color:#a78bfa">Descargas</strong> del teléfono.</p>';
     renderView();go('s-view');
   });
 }
@@ -624,5 +616,7 @@ function renderView(){
 
 openDB().catch(function(e){console.error(e);});
 </script>
+
+<div style="text-align:center;padding:20px 0 6px;font-size:11px;color:#2a2a4a;letter-spacing:.12em;text-transform:uppercase">GODTS &copy; 2025</div>
 </body>
 </html>
