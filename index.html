@@ -123,6 +123,10 @@ audio{width:100%;accent-color:#6d28d9}
 .tone-row{margin-bottom:14px}
 .tone-full{width:100%;font-size:14px;padding:12px 14px;background:#0d1a0d;border-color:#14532d;color:#6ee7b7}
 .tone-full:focus{border-color:#22c55e}
+.note-tap{cursor:pointer;transition:transform .1s}
+.note-tap:active{transform:scale(.9)}
+.cur-note.nat{box-shadow:0 0 0 2px #6ee7b7}
+.cur-note.shp{box-shadow:0 0 0 2px #fbbf24}
 </style>
 </head>
 <body>
@@ -185,12 +189,12 @@ audio{width:100%;accent-color:#6d28d9}
   <input type="text" id="mn" placeholder="Ej: Santo es el Señor..." style="width:100%;padding:12px 14px;border:1px solid #2a2a4a;border-radius:12px;background:#0d0d1a;color:#e8e8f0;font-size:15px;margin-bottom:14px;outline:none">
   <div class="sl">Notas</div>
   <div class="niw">
-    <div class="nd" id="nd" onclick="fEnd()"><span class="eh">Toca una nota...</span><span class="cur-bar"></span></div>
+    <div class="nd" id="nd" onclick="clickOnDisplay(event)"><span class="eh">Toca una nota...</span><span class="cur-bar"></span></div>
     <div class="ebar">
-      <span style="font-size:11px;color:#4b5563;align-self:center;padding-left:4px">Toca una nota para ubicarte</span>
+      <span style="font-size:11px;color:#4b5563;align-self:center;padding-left:2px">Toca cualquier nota para mover el cursor</span>
       <div style="flex:1"></div>
-      <button class="eb del" onclick="delC()">⌫ Borrar</button>
-      <button class="eb clr" onclick="clrAll()">✕ Todo</button>
+      <button class="eb del" onclick="delC()">⌫</button>
+      <button class="eb clr" onclick="clrAll()">✕</button>
     </div>
   </div>
   <div class="ng" style="margin-top:8px">
@@ -378,18 +382,48 @@ var DND={'|':'|',' ':'␣','-':'—','.':'·','/':'/','(':' (',')':")  ",'^':'�
 
 function rND(){
   var d=document.getElementById('nd');
-  if(!notes.length){d.innerHTML='<span class="eh">Toca una nota...</span><span class="cur-bar"></span>';return;}
+  if(!notes.length){
+    d.innerHTML='<span class="eh">Toca una nota...</span><span class="cur-bar"></span>';
+    return;
+  }
   var h='';
   for(var i=0;i<notes.length;i++){
-    if(i===cur)h+='<span class="cur-bar"></span>';
+    // cursor ANTES de esta nota
+    if(i===cur) h+='<span class="cur-bar" id="cur-el"></span>';
     var n=notes[i];
-    if(SP.has(n))h+='<span class="np spc" onclick="sC('+(i+1)+')">'+(DND[n]||n)+'</span>';
-    else h+='<span class="np '+(isSh(n)?'shp':'nat')+'" onclick="sC('+(i+1)+')" style="cursor:default">'+n+'</span>';
+    var isCur=(i===cur-1); // nota justo antes del cursor — resaltarla levemente
+    if(SP.has(n)){
+      h+='<span class="np spc note-tap" data-idx="'+(i+1)+'">'+(DND[n]||n)+'</span>';
+    } else {
+      h+='<span class="np '+(isSh(n)?'shp':'nat')+' note-tap'+(isCur?' cur-note':'')+'" data-idx="'+(i+1)+'">'+n+'</span>';
+    }
   }
-  if(cur>=notes.length)h+='<span class="cur-bar"></span>';
+  // cursor AL FINAL
+  if(cur>=notes.length) h+='<span class="cur-bar" id="cur-el"></span>';
   d.innerHTML=h;
+  // scroll para mostrar el cursor
+  var el=document.getElementById('cur-el');
+  if(el) el.scrollIntoView({block:'nearest',inline:'nearest'});
 }
+
+// Toque en el display: mover cursor a la nota tocada
+function clickOnDisplay(e){
+  var tgt=e.target;
+  if(tgt.classList.contains('note-tap')){
+    var idx=parseInt(tgt.getAttribute('data-idx'));
+    cur=idx;
+    rND();
+    return;
+  }
+  // Si toca el área vacía después de las notas → cursor al final
+  if(tgt.classList.contains('nd')||tgt.classList.contains('eh')){
+    cur=notes.length;
+    rND();
+  }
+}
+
 function aN(n){notes.splice(cur,0,n);cur++;rND();}
+// mCur ya no se usa en UI pero lo dejamos por si acaso
 function mCur(d){cur=Math.max(0,Math.min(notes.length,cur+d));rND();}
 function delC(){if(cur>0){notes.splice(cur-1,1);cur--;rND();}}
 function fEnd(){cur=notes.length;rND();}
