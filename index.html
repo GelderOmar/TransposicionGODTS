@@ -115,6 +115,14 @@ audio{width:100%;accent-color:#6d28d9}
 .bcnc{background:transparent;border:1px solid #374151;color:#9ca3af}
 .bcnf{background:#dc2626;border:none;color:#fff}
 .empty{text-align:center;padding:50px 20px;color:#4b5563;font-size:15px;line-height:1.8}
+.sel-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.sel-group{display:flex;flex-direction:column;gap:6px}
+.sel-lbl{font-size:10px;font-weight:700;color:#6b6b8a;letter-spacing:.1em;text-transform:uppercase}
+.vsel{padding:11px 12px;border:1px solid #2a2a4a;border-radius:12px;background:#1a1a2e;color:#e8e8f0;font-size:14px;font-weight:600;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;width:100%}
+.vsel:focus{border-color:#6d28d9}
+.tone-row{margin-bottom:14px}
+.tone-full{width:100%;font-size:14px;padding:12px 14px;background:#0d1a0d;border-color:#14532d;color:#6ee7b7}
+.tone-full:focus{border-color:#22c55e}
 </style>
 </head>
 <body>
@@ -179,9 +187,9 @@ audio{width:100%;accent-color:#6d28d9}
   <div class="niw">
     <div class="nd" id="nd" onclick="fEnd()"><span class="eh">Toca una nota...</span><span class="cur-bar"></span></div>
     <div class="ebar">
-      <button class="eb nav" onclick="mCur(-1)">◀</button>
-      <button class="eb nav" onclick="mCur(1)">▶</button>
-      <button class="eb del" onclick="delC()">⌫</button>
+      <span style="font-size:11px;color:#4b5563;align-self:center;padding-left:4px">Toca una nota para ubicarte</span>
+      <div style="flex:1"></div>
+      <button class="eb del" onclick="delC()">⌫ Borrar</button>
       <button class="eb clr" onclick="clrAll()">✕ Todo</button>
     </div>
   </div>
@@ -240,28 +248,37 @@ audio{width:100%;accent-color:#6d28d9}
     <div style="font-size:10px;font-weight:700;color:#6ee7b7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">🎙 Grabación</div>
     <audio id="vaudio" controls style="width:100%;accent-color:#6d28d9;border-radius:10px"></audio>
   </div>
-  <div class="sl">Vista</div>
-  <div class="crow" id="vchips">
-    <button class="chip on" onclick="sVw(this,'orig')">1a voz</button>
-    <button class="chip" onclick="sVw(this,'v2')">2a voz</button>
-    <button class="chip" onclick="sVw(this,'v3')">3a voz</button>
-    <button class="chip" onclick="sVw(this,'v4')">4a voz</button>
-    <div class="tchip">🎵<select id="tsel" onchange="onTC()">
-      <option value="same">Tono orig.</option>
-      <option value="C">→ C</option><option value="C#">→ C#</option>
-      <option value="D">→ D</option><option value="D#">→ D#</option>
-      <option value="E">→ E</option><option value="F">→ F</option>
-      <option value="F#">→ F#</option><option value="G">→ G</option>
-      <option value="G#">→ G#</option><option value="A">→ A</option>
-      <option value="A#">→ A#</option><option value="B">→ B</option>
-    </select></div>
+  <div class="sel-row">
+    <div class="sel-group">
+      <div class="sel-lbl">Voz</div>
+      <select class="vsel" id="vsel" onchange="sVw(this.value)">
+        <option value="orig">1a voz (original)</option>
+        <option value="v2">2a voz</option>
+        <option value="v3">3a voz</option>
+        <option value="v4">4a voz</option>
+      </select>
+    </div>
+    <div class="sel-group">
+      <div class="sel-lbl">Instrumento</div>
+      <select class="vsel" id="isel" onchange="sDst(this.value)">
+        <option value="same">Mi instrumento</option>
+        <option value="C">Piano / Teclado</option>
+        <option value="Eb">Saxofón Alto</option>
+        <option value="Bb">Tenor / Trompeta</option>
+      </select>
+    </div>
   </div>
-  <div class="sl">Instrumento destino</div>
-  <div class="crow" id="ichips">
-    <button class="chip on" onclick="sDst(this,'same')">Mi instrumento</button>
-    <button class="chip" onclick="sDst(this,'C')">Piano</button>
-    <button class="chip" onclick="sDst(this,'Eb')">Sax Alto</button>
-    <button class="chip" onclick="sDst(this,'Bb')">Tenor / Trompeta</button>
+  <div class="tone-row">
+    <div class="sel-lbl" style="margin-bottom:6px">🎵 Cambiar tono de la canción</div>
+    <select class="vsel tone-full" id="tsel" onchange="onTC()">
+      <option value="same">— Mismo tono (sin cambio) —</option>
+      <option value="C">C / Do</option><option value="C#">C# / Do#</option>
+      <option value="D">D / Re</option><option value="D#">D# / Re#</option>
+      <option value="E">E / Mi</option><option value="F">F / Fa</option>
+      <option value="F#">F# / Fa#</option><option value="G">G / Sol</option>
+      <option value="G#">G# / Sol#</option><option value="A">A / La</option>
+      <option value="A#">A# / La#</option><option value="B">B / Si</option>
+    </select>
   </div>
   <div class="vlbl" id="vlbl">1a voz · Mi instrumento</div>
   <div class="nbox" id="nbox"></div>
@@ -513,10 +530,8 @@ function opM(id){
   dbG(id).then(function(m){
     if(!m)return;
     vM=m;vMd='orig';vDs='same';vTn='same';
-    document.querySelectorAll('#vchips .chip').forEach(function(b){b.classList.remove('on');});
-    document.querySelector('#vchips .chip').classList.add('on');
-    document.querySelectorAll('#ichips .chip').forEach(function(b){b.classList.remove('on');});
-    document.querySelector('#ichips .chip').classList.add('on');
+    document.getElementById('vsel').value='orig';
+    document.getElementById('isel').value='same';
     document.getElementById('tsel').value='same';
     document.getElementById('vtit').textContent=m.name;
     var sc=bSc(m.tonic,m.mode);
@@ -531,8 +546,8 @@ function opM(id){
 }
 
 function onTC(){vTn=document.getElementById('tsel').value;rVw();}
-function sVw(el,m){document.querySelectorAll('#vchips .chip').forEach(function(b){b.classList.remove('on');});el.classList.add('on');vMd=m;rVw();}
-function sDst(el,d){document.querySelectorAll('#ichips .chip').forEach(function(b){b.classList.remove('on');});el.classList.add('on');vDs=d;rVw();}
+function sVw(val){vMd=val;rVw();}
+function sDst(val){vDs=val;rVw();}
 
 function rVw(){
   if(!vM)return;
